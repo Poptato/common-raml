@@ -1,0 +1,20 @@
+{
+  "name": "poptato-common-raml",
+  "version": "0.3.0",
+  "description": "Common RAML definitions used in Poptato",
+  "main": "common.lib.raml",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Poptato/common-raml.git"
+  },
+  "keywords": [
+    "RAML",
+    "Poptato"
+  ],
+  "author": "Idan A. <idan5x@live.com> (idan5x.github.io)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Poptato/common-raml/issues"
+  },
+  "homepage": "https://github.com/Poptato/common-raml#readme"
+}

@@ -1,0 +1,147 @@
+#%RAML 1.0 Library
+
+# ==============
+#     TRAITS
+# ==============
+traits:
+  hasNotFound:
+    usage: #TODO
+    responses:
+      404:
+        body:
+          application/json:
+            type: Error
+
+  hasItemRequest:
+    usage: Use this to describe a request conatining an item
+    body:
+      application/json:
+        type: <<typeName>>
+
+  hasItemResponse:
+    usage: Use this to describe a response conatining an item
+    responses:
+      200:
+        body:
+          application/json:
+            type: <<typeName>>
+
+  hasCollectionResponse:
+    usage: Use this to describe a response conatining a collecion of items
+    responses:
+      200:
+        body:
+          application/json:
+            type: <<typeName>>[]
+
+  pageable:
+    usage: Use this to describe a paged response
+    queryParameters:
+      offset:
+        description: The number of items to skip
+        type: number
+        minimum: 0
+        default: 0
+      limit:
+        description: The number of items per page
+        type: number
+        minimum: 0
+        maximum: 100
+        default: 10
+    responses:
+      200:
+        body:
+          application/json:
+            type: object
+            properties:
+              total:
+                type: number
+                minimum: 0
+              data: <<typeName>>[]
+              nextPage?: Url
+              prevPage?: Url
+
+  orderable:
+    usage: Use this to describe an orderable response
+    queryParameters:
+      orderBy:
+        description: Order by field of <<typeName|!lowercamelcase>>
+        type: string
+        required: false
+      dir:
+        type: string
+        enum: [DESC, ASC]
+        default: DESC
+
+
+# ======================
+#     RESOURCE TYPES
+# ======================
+resourceTypes:
+  Item:
+    usage: Use this to represent an item
+    description: A single <<typeName|!lowerunderscorecase>>
+    get:
+      description: Get a <<typeName|!lowerunderscorecase>>
+      is:
+        - hasItemResponse:
+            typeName: <<typeName>>
+        - hasNotFound:
+    put:
+      description: Update a <<typeName|!lowerunderscorecase>>
+      is:
+        - hasItemRequest:
+            typeName: <<typeName>>
+        - hasItemResponse:
+            typeName: <<typeName>>
+    delete:
+      description: Delete a <<typeName|!lowerunderscorecase>>
+      is:
+        - hasNotFound:
+      responses:
+        204:
+
+  Collection:
+    usage: Use this to represent a collection of items
+    description: A collection of <<typeName|!pluralize|!lowerunderscorecase>>
+    get:
+      description: Get all <<typeName|!pluralize|!lowerunderscorecase>>
+      is:
+        - hasCollectionResponse:
+             typeName: <<typeName>>
+    post:
+      description: Create a new <<typeName|!lowerunderscorecase>>
+      is:
+        - hasItemRequest:
+            typeName: <<typeName>>
+        - hasItemResponse:
+            typeName: <<typeName>>
+
+  PagedCollection:
+    type:
+      Collection:
+        typeName: <<typeName>>
+    is:
+      - pageable:
+           typeName: <<typeName>>
+      - orderable:
+          typeName: <<typeName>>
+
+
+# ==============
+#     TYPES
+# ==============
+types:
+  Error:
+    type: object
+    properties:
+      message: string
+
+  CustomDate:
+    type: date-only
+    facets:
+      occuredInPast: boolean
+
+  Url:
+    type: string
+    pattern: ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
